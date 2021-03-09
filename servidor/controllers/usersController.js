@@ -10,7 +10,7 @@ exports.newUser = async (req, res) => {
         let user = await UserModel.findOne({ email });;
 
         if(user) {
-            return res.status(400).json({ msg: 'El user ya existe' });
+            return res.status(400).json({ msg: 'El usuario ya existe' });
         }
 
         user = new UserModel(req.body);
@@ -19,8 +19,6 @@ exports.newUser = async (req, res) => {
         user.password = await bcryptjs.hash( password, salt );
 
         await user.save()
-
-        res.send('User creado');
         
 
         const payload = {

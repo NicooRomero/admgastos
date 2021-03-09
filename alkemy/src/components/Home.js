@@ -1,73 +1,62 @@
-import React, { useState,useEffect } from 'react';
-import clienteAxios from '../config/axios';
+import React, { useState, useContext, useEffect } from 'react';
 import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import Expenses from './Expenses';
-import List from './List';
+import Nav from './Nav';
+import Start from './Start';
+import Operations from './Operations';
+import Control from './Control';
+import AuthContext from '../context/authentication/authContext';
 
+const SetAmount = () => {
 
-const Home = ({amountleft, setAmountLeft, name}) => {
-
-    const [ expenses, setExpenses ] = useState([]); 
-    const [ spending, setSpending ] = useState({});  
-    const [ createspending, setCreateSpending ] = useState(false);  
+    const authContext = useContext(AuthContext);
+    const {userAuth} = authContext;
 
     useEffect(() => {
-        if(createspending) {
-            setExpenses([
-                ...expenses,
-                spending
-            ]); 
+      userAuth();
+    }, []);
 
-            const budgetRemaining = amountleft - spending.amount;
-            const left = {
-                amount: budgetRemaining
-            }
-            try {
-                const res = clienteAxios.patch('/api/budget', left); 
-            } catch (error) {
-                console.log(error);
-            }
-            
-            console.log(budgetRemaining)
-            setAmountLeft(budgetRemaining);
-
-            setCreateSpending(false);
+    const [ showInitial, setShowInitial ] = useState(true);
+    const [ budget, setBudget] = useState(0);
+    const [ amountleft, setAmountLeft ] = useState(0);
+    const [ name, setName ] = useState('');
+    
+  
+    return (
+      <>
+      <Nav />
+      <Container maxWidth="md">
+        { showInitial ? 
+        (
+          <Container maxWidth="sm">
+            <Start
+            setBudget={setBudget}
+            setAmountLeft={setAmountLeft}
+            setShowInitial={setShowInitial}
+            setName={setName}
+            />
+          </Container>
+        )
+        : 
+        (
+          <Container maxWidth="md">
+            <Operations
+              amountleft={amountleft}
+              setAmountLeft={setAmountLeft}
+              name={name}
+            />
+          </Container>          
+        )        
         }
-    }, [spending]);
-
-    // const addNewExpenses = spending => {
-    //     setExpenses([
-    //         ...expenses,
-    //         spending
-    //     ]);  
-    //   console.log(expenses)  
-    // }   
-      
-
-
-    return ( 
-        <>
         <Container maxWidth="md">
-            <h2>OPERACIONES</h2>
-            <h1>Hola {name}!</h1>
-            <Grid container spacing={3}>
-                <Grid item xs={6}>            
-                    <Expenses
-                        setSpending={setSpending}
-                        setCreateSpending={setCreateSpending}
-                    />
-                </Grid>
-                <Grid item xs={6}>
-                    <List
-                        expenses={expenses}
-                    />
-                </Grid>
-            </Grid>
-        </Container>
-            
-        </>
-     );
+            <Control
+              budget={budget}
+              amountleft={amountleft}
+            />
+          </Container>        
+      </Container>
+      
+      </>
+    );
 }
  
-export default Home;
+export default SetAmount;
